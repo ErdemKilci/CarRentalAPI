@@ -1,22 +1,22 @@
-# 1) Build image
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# 1) Build image using the .NET 9 SDK
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-# Kopier alt inn i imaget
+# Copy everything to the container
 COPY . ./
 
-# Bygg og publiser prosjektet til /app/out
+# Build and publish the project in Release configuration to /app/out
 RUN dotnet publish -c Release -o /app/out
 
-# 2) Runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+# 2) Runtime image using the .NET 9 ASP.NET Core runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
-# Kopier publiserte filer fra build-steget
+# Copy the published output from the build stage
 COPY --from=build /app/out ./
 
-# Default port i .NET er 80. Eksponer 80 for DO App Platform
+# Expose port 80 for incoming traffic
 EXPOSE 80
 
-# Kjør applikasjonen
+# Start the application
 ENTRYPOINT ["dotnet", "CarRentalAPI.dll"]
